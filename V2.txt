@@ -3943,7 +3943,8 @@
     #quickpost {width:100%;}
     #fontfontquickpost { padding-left: 0.5rem; }
     #fontsizequickpost { padding: 0 0.5rem; }
-
+    .taglabel { color:var(--text-color-surface) }
+    .body { font-size: var(--base-font-size-md) }
     `);
 
         // ==================== START SCRIPT ====================
