@@ -972,7 +972,7 @@
                 '--background-image': 'none',
                 '--background-color': '#000000',
                 '--header-background': '#1a1a1a',
-                '--header-max-width': '1400px',
+                '--header-max-width': '1300px',
                 '--header-margin-top': '0',
                 '--header-border-radius': '0px',
                 '--content-border-radius': '0px',
