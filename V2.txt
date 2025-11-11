@@ -798,7 +798,7 @@
                     '--border-top-right-radius': '0.25rem',
                     '--border-bottom-left-radius': '0.25rem',
                     '--border-bottom-right-radius': '1.25rem',
-                    '--card-head-box-shadow': '0px -5px 16px -13px rgba(139, 0, 0, 0.7)',
+                    '--card-head-box-shadow': '1px -5px 15px rgba(139, 0, 0, 0.4)',
                     '--card-box-shadow': '0 4px 15px rgba(139, 0, 0, 0.4)',
                     '--footer-bg-color': '#1a0f0f',
                     '--pagination-active-color': '#dc143c',
