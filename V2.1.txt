@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Materialize Enhanced
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @description  CSS enhancements for materialize default stylesheet - Performance Optimized
 // @author       miniman
 // @match        https://materialize.is/*
