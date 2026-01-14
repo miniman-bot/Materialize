@@ -59,32 +59,27 @@
 
 
     function initChangelog() {
-        const CURRENT_VERSION = '1.0.0';
+        const CURRENT_VERSION = '1.0.0'; // Update this when you release
         const CHANGELOG_URL = 'https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json';
         const VERSION_KEY = 'last_seen_version';
-
-        if (!CURRENT_VERSION || !CHANGELOG_URL) {
-            console.warn('Changelog system not configured');
-            return;
-        }
-
+        
         // Check if this is a new version
         const lastSeenVersion = GM_getValue(VERSION_KEY, '0.0.0');
         const isNewVersion = lastSeenVersion !== CURRENT_VERSION;
-
+        
         if (!isNewVersion) {
             return; // User has already seen this version
         }
-
-        // Fetch and show changelog
+        
+        // Fetch changelog
         GM_xmlhttpRequest({
             method: 'GET',
             url: CHANGELOG_URL,
-            onload: function (response) {
+            onload: function(response) {
                 try {
                     const changelogs = JSON.parse(response.responseText);
                     const changelog = changelogs[CURRENT_VERSION];
-
+                    
                     if (changelog) {
                         showChangelog(CURRENT_VERSION, changelog);
                         GM_setValue(VERSION_KEY, CURRENT_VERSION);
@@ -93,7 +88,7 @@
                     console.error('Error loading changelog:', error);
                 }
             },
-            onerror: function (error) {
+            onerror: function(error) {
                 console.error('Failed to fetch changelog:', error);
             }
         });
