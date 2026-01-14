@@ -30,7 +30,6 @@
 
     const url = window.location.href;
     const path = window.location.pathname;
-    window.CHANGELOG_URL = 'https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json';
 
 
     // ==================== CONFIGURATION ====================
@@ -60,8 +59,8 @@
 
 
     function initChangelog() {
-        const CURRENT_VERSION = window.SCRIPT_VERSION;
-        const CHANGELOG_URL = window.CHANGELOG_URL;
+        const CURRENT_VERSION = '1.0.0';
+        const CHANGELOG_URL = 'https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json';
         const VERSION_KEY = 'last_seen_version';
 
         if (!CURRENT_VERSION || !CHANGELOG_URL) {
