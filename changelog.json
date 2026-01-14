@@ -2,13 +2,13 @@
   "1.0.0": {
     "title": "What's New in v1.2.0",
     "features": [
-      "Added changelog",
+      "Added changelog"
     ],
     "improvements": [
-      "Added caching for themes",
+      "Added caching for themes"
     ],
     "fixes": [
-      "Fixed styling flash on page load",
+      "Fixed styling flash on page load"
     ]
   }
 }
