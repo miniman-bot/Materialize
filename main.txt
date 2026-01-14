@@ -60,7 +60,7 @@
 
     function initChangelog() {
         const CURRENT_VERSION = '1.0.0'; // Update this when you release
-        const CHANGELOG_URL = 'https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json';
+    const CHANGELOG_URL = `https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json?t=${Date.now()}`;
         const VERSION_KEY = 'last_seen_version';
         
         // Check if this is a new version
