@@ -30,6 +30,7 @@
 
     const url = window.location.href;
     const path = window.location.pathname;
+    window.CHANGELOG_URL = 'https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json';
 
 
     // ==================== CONFIGURATION ====================
