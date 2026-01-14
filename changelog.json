@@ -10,5 +10,17 @@
     "fixes": [
       "Fixed styling flash on page load"
     ]
+  },
+  "1.0.1": {
+    "title": "What's New in v1.0.1",
+    "features": [
+      "Added test"
+    ],
+    "improvements": [
+      "Added test"
+    ],
+    "fixes": [
+      "Fixed styling flash on page load"
+    ]
   }
 }
