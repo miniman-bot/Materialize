@@ -1,26 +1,73 @@
 {
-  "1.0.0": {
-    "title": "What's New in v1.0.0",
-    "features": [
-      "Added changelog"
-    ],
-    "improvements": [
-      "Added caching for themes"
-    ],
-    "fixes": [
-      "Fixed styling flash on page load"
-    ]
-  },
-  "1.0.1": {
-    "title": "What's New in v1.0.1",
-    "features": [
-      "Added test"
-    ],
-    "improvements": [
-      "Added test"
-    ],
-    "fixes": [
-      "Fixed styling flash on page load"
-    ]
-  }
+    "1.4.0": {
+        features: [
+            "Auto-update feature - script now automatically updates when a new version is pushed",
+            "Changelog modal to view what's new in each version"
+        ],
+        improvements: [],
+        fixes: []
+    },
+    "1.3.0": {
+        features: [
+            "Add bookmark functionality directly from torrents browsing page"
+        ],
+        improvements: [
+            "Refined CSS variables for themes (closer to final implementation)",
+            "Enhanced theme styling for better visual appearance"
+        ],
+        fixes: [
+            "Fixed 'Color' and 'Bg' buttons in the form reply editor",
+            "Fixed broken CSS variables in custom themes"
+        ]
+    },
+    "1.2.0": {
+        features: [
+            "Custom theme selector with multiple preset themes",
+            "Custom font selection with multiple font options",
+            "Adjustable font size settings",
+            "Theme customization available in user settings"
+        ],
+        improvements: [
+            "Added support for CSS variables for easier theme management",
+            "Improved user settings interface"
+        ],
+        fixes: []
+    },
+    "1.1.0": {
+        features: [
+            "Image carousel with modal and keyboard navigation support in torrent descriptions",
+            "Prevent upload of compressed files feature",
+            "Bonus points calculator showing rates for Hour, Day, Week, and Month on bonus page",
+            "Copy code button for spoiler code blocks for easy copy/paste"
+        ],
+        improvements: [
+            "Updated forum user images to fill full width",
+            "Added more SVG replacement images for torrent info page"
+        ],
+        fixes: []
+    },
+    "1.0.0": {
+        features: [
+            "Bonus rate calculations display",
+            "Carousel slides for torrent descriptions",
+            "Helper to copy code blocks",
+            "Check for compressed uploads",
+            "Reworked collage images display",
+            "Custom themes support",
+            "Custom fonts support",
+            "Adjustable font size",
+            "Bookmark functionality from torrents page"
+        ],
+        improvements: [
+            "Updated global font for better legibility",
+            "Replaced icons with modern alternatives",
+            "Added smooth transitions and animations",
+            "Updated tag pills styling",
+            "Updated form input styles",
+            "Updated border styles across the site"
+        ],
+        fixes: [
+            "Fixed broken background and color form buttons"
+        ]
+    }
 }
