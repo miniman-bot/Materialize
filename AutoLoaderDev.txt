@@ -28,7 +28,7 @@
 // ==/UserScript==
 // ==/UserScript==
 
-const SCRIPT_URL = 'https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/main.txt';
+const SCRIPT_URL = 'https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/dev.txt';
 const CACHE_KEY = 'cached_script';
 const CACHE_VERSION_KEY = 'cached_script_version';
 
