@@ -1,0 +1,65 @@
+// ==UserScript==
+// @name         Materialize Enchanced
+// @namespace    http://tampermonkey.net/
+// @version      1.0.0
+// @description  Auto Updater Script for Materialize Enhanced
+// @author       miniman
+// @match        https://materialize.is/*
+// @match        https://materialize.is/index.php*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=materialize.is
+// @grant        GM_addStyle
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_getResourceText
+// @grant        GM_xmlhttpRequest
+// @resource     robotoFont https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap
+// @resource     interFont https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap
+// @resource     manropeFont https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap
+// @resource     momoFont https://fonts.googleapis.com/css2?family=Momo+Signature&display=swap
+// @resource     fredokaFont https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap
+// @resource     oswaldFont https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap
+// @resource     playfairFont https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap
+// @resource     montserratFont https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap
+// @resource     loraFont https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap
+// @resource     poppinsFont https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap
+// @resource     ralewayFont https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap
+// @run-at       document-start
+// @connect      raw.githubusercontent.com
+// ==/UserScript==
+// ==/UserScript==
+
+const SCRIPT_URL = 'https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/main.txt';
+const CACHE_KEY = 'cached_script';
+const CACHE_VERSION_KEY = 'cached_script_version';
+
+// Load cached version
+const cachedScript = GM_getValue(CACHE_KEY);
+const cachedVersion = GM_getValue(CACHE_VERSION_KEY, '0.0.0');
+
+// Always execute cached script if available
+if (cachedScript) {
+    eval(cachedScript);
+}
+
+// Fetch to check for updates
+GM_xmlhttpRequest({
+    method: 'GET',
+    url: SCRIPT_URL,
+    onload: function(response) {
+        // Extract version from the fetched script
+        const versionMatch = response.responseText.match(/const CURRENT_VERSION = ['"](.+?)['"]/);
+        const fetchedVersion = versionMatch ? versionMatch[1] : '0.0.0';
+
+        // Only update cache if version changed
+        if (fetchedVersion !== cachedVersion) {
+            console.log(`Updating script from v${cachedVersion} to v${fetchedVersion}`);
+            GM_setValue(CACHE_KEY, response.responseText);
+            GM_setValue(CACHE_VERSION_KEY, fetchedVersion);
+
+            // Execute new version if we didn't have cache
+            if (!cachedScript) {
+                eval(response.responseText);
+            }
+        }
+    }
+});
