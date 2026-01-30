@@ -21,7 +21,6 @@
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
-// @grant        GM_getResourceText
 // @run-at       document-start
 // ==/UserScript==
 
