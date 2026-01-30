@@ -97,12 +97,12 @@
         });
     }
 
-    function showChangelog(version, changelog) {
+    function showChangelog(version, changelog, fullChangeLog) {
         // Wait for page to load
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => createChangelogModal(version, changelog));
         } else {
-            createChangelogModal(version, changelog);
+            createChangelogModal(version, changelog, fullChangeLog, true);
         }
     }
     function createChangelogModal(version, changelog, fullChangeLog, showAllExpanded = false) {
