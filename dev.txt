@@ -73,7 +73,7 @@
         if (!isNewVersion) {
             return; // User has already seen this version
         }
-
+        console.log('Does this hit?')
         // Fetch changelog
         GM_xmlhttpRequest({
             method: 'GET',
