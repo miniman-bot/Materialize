@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Materialize Enchanced
+// @name         Auto Loader Dev
 // @namespace    http://tampermonkey.net/
 // @version      1.0.0
 // @description  Auto Updater Script for Materialize Enhanced
