@@ -1544,7 +1544,6 @@
             if (!bookMarkTd) return;
 
             const floatRightSpan = bookMarkTd.querySelector('span[style*="float:right"]');
-            console.log('float right', floatRightSpan)
             if (!floatRightSpan) return;
 
             // Mark bookmark images so replaceIconsOnce won't touch them
