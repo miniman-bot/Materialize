@@ -30,7 +30,6 @@
 
     const url = window.location.href;
     const path = window.location.pathname;
-    const VERSION_KEY = 'last_seen_version';
     const CHANGELOG_DATA = 'change_log_data';
     const CURRENT_VERSION = '1.4.0'; // Update this when you release
 
@@ -65,17 +64,16 @@
 
 
         // Check if this is a new version
-        const lastSeenVersion = GM_getValue(VERSION_KEY, '0.0.0');
-
+        const lastSeenVersion = GM_getValue('last_seen_version', '0.0.0');
+        console.log('lastSeenVersion', lastSeenVersion)
+        console.log('CURRENT_VERSION', CURRENT_VERSION)
         const isNewVersion = lastSeenVersion !== CURRENT_VERSION;
-    
+
         if (!isNewVersion) {
             return; // User has already seen this version
         }
-        console.log('Does this hit?')
-             console.log('lastSeenVersion', lastSeenVersion)
-        console.log('CURRENT_VERSION', CURRENT_VERSION)
-        GM_setValue(VERSION_KEY, CURRENT_VERSION);
+        console.log('new change')
+        GM_setValue('last_seen_version', CURRENT_VERSION);
 
         // Fetch changelog
         GM_xmlhttpRequest({
