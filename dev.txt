@@ -60,7 +60,7 @@
 
 
     function initChangelog() {
-        const CHANGELOG_URL = `https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json?t=${Date.now()}`;
+        const CHANGELOG_URL = `https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json`;
 
 
         // Check if this is a new version
