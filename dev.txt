@@ -32,7 +32,7 @@
     const path = window.location.pathname;
     const VERSION_KEY = 'last_seen_version';
     const CHANGELOG_DATA = 'change_log_data';
-    const CURRENT_VERSION = '1.4.1'; // Update this when you release
+    const CURRENT_VERSION = '1.4.0'; // Update this when you release
 
     // ==================== CONFIGURATION ====================
     const { fontSizes, themes, fontFamilies } = getGlobalVariables();
@@ -54,7 +54,7 @@
         initPageSpecificFeatures();
 
         applyColorPickerFix();
-        // initChangelog();
+        initChangelog();
 
     }
 
@@ -3065,7 +3065,6 @@
         observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
-    // ==================== ICON REPLACEMENT ====================
     // ==================== ICON REPLACEMENT ====================
     function replaceIconsOnce() {
         const svgIcons = getSVGIcons();
