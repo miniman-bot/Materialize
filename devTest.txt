@@ -54,7 +54,7 @@
         initPageSpecificFeatures();
 
         applyColorPickerFix();
-        initChangelog();
+        // initChangelog();
 
     }
 
