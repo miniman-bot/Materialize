@@ -40,6 +40,7 @@
     function init() {
         // Load only the selected font
         console.log('init does this keep firing?')
+
         loadSelectedFont();
 
         // Apply saved settings
@@ -53,7 +54,7 @@
         // Initialize page-specific features
         initPageSpecificFeatures();
 
-        applyColorPickerFix();
+        // applyColorPickerFix();
 
         // Prevent css flashing need a better fix
         if (document.readyState === 'loading') {
@@ -66,6 +67,9 @@
     }
 
 
+    // ==================== START SCRIPT ====================
+    init();
+
 
     function initChangelog() {
 
@@ -73,43 +77,100 @@
         // Check if this is a new version
         const lastSeenVersion = GM_getValue('last_seen_version', '0.0.0');
         const isNewVersion = lastSeenVersion !== CURRENT_VERSION;
-        console.log('lastSeenVersion', lastSeenVersion)
-        console.log('CURRENT_VERSION', CURRENT_VERSION)
+
+
 
         if (!isNewVersion) {
             return; // User has already seen this version
         }
-        const CHANGELOG_URL = `https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json`;
 
-        console.log('This should not hit');
+        const fullChangeLog = {
+            "1.4.1": {
+                "features": [
+                    "Auto-update feature - script now automatically updates when a new version is pushed",
+                    "Changelog modal to view what's new in each version"
+                ],
+                "improvements": [],
+                "fixes": []
+            },
+            "1.3.0": {
+                "features": [
+                    "Add bookmark functionality directly from torrents browsing page"
+                ],
+                "improvements": [
+                    "Refined CSS variables for themes (closer to final implementation)",
+                    "Enhanced theme styling for better visual appearance"
+                ],
+                "fixes": [
+                    "Fixed 'Color' and 'Bg' buttons in the form reply editor",
+                    "Fixed broken CSS variables in custom themes"
+                ]
+            },
+            "1.2.0": {
+                "features": [
+                    "Custom theme selector with multiple preset themes",
+                    "Custom font selection with multiple font options",
+                    "Adjustable font size settings",
+                    "Theme customization available in user settings"
+                ],
+                "improvements": [
+                    "Added support for CSS variables for easier theme management",
+                    "Improved user settings interface"
+                ],
+                "fixes": []
+            },
+            "1.1.0": {
+                "features": [
+                    "Image carousel with modal and keyboard navigation support in torrent descriptions",
+                    "Prevent upload of compressed files feature",
+                    "Bonus points calculator showing rates for Hour, Day, Week, and Month on bonus page",
+                    "Copy code button for spoiler code blocks for easy copy/paste"
+                ],
+                "improvements": [
+                    "Updated forum user images to fill full width",
+                    "Added more SVG replacement images for torrent info page"
+                ],
+                "fixes": []
+            },
+            "1.0.0": {
+                "features": [
+                    "Bonus rate calculations display",
+                    "Carousel slides for torrent descriptions",
+                    "Helper to copy code blocks",
+                    "Check for compressed uploads",
+                    "Reworked collage images display",
+                    "Custom themes support",
+                    "Custom fonts support",
+                    "Adjustable font size",
+                    "Bookmark functionality from torrents page"
+                ],
+                "improvements": [
+                    "Updated global font for better legibility",
+                    "Replaced icons with modern alternatives",
+                    "Added smooth transitions and animations",
+                    "Updated tag pills styling",
+                    "Updated form input styles",
+                    "Updated border styles across the site"
+                ],
+                "fixes": [
+                    "Fixed broken background and color form buttons"
+                ]
+            }
+        }
+
         GM_setValue('last_seen_version', CURRENT_VERSION);
 
-        // Fetch changelog
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: CHANGELOG_URL,
-            onload: function (response) {
-                try {
-                    const fullChangeLog = JSON.parse(response.responseText);
-                    const changelog = fullChangeLog[CURRENT_VERSION];
-                    GM_setValue(CHANGELOG_DATA, fullChangeLog)
-                    if (changelog) {
-                        showChangelog(CURRENT_VERSION, changelog, fullChangeLog);
-                    }
-                } catch (error) {
-                    console.error('Error loading changelog:', error);
-                }
-            },
-            onerror: function (error) {
-                console.error('Failed to fetch changelog:', error);
-            }
-        });
+        const changelog = fullChangeLog[CURRENT_VERSION];
+        GM_setValue(CHANGELOG_DATA, fullChangeLog)
+        if (changelog) {
+            showChangelog(CURRENT_VERSION, changelog, fullChangeLog);
+        }
     }
 
     function showChangelog(version, changelog, fullChangeLog) {
         // Wait for page to load
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => createChangelogModal(version, changelog));
+            document.addEventListener('DOMContentLoaded', () => createChangelogModal(version, changelog, fullChangeLog, true));
         } else {
             createChangelogModal(version, changelog, fullChangeLog, true);
         }
@@ -1727,6 +1788,8 @@
         // Upload page
         if (path.includes('upload.php')) {
             initUploadPage();
+            applyColorPickerFix();
+
         }
 
         // Bonus page
@@ -1737,6 +1800,7 @@
         // Forums page
         if (path.includes('forums.php')) {
             initForumsPage();
+            applyColorPickerFix();
         }
 
         // Torrents page
@@ -3051,7 +3115,6 @@
     }
 
     // ==================== ICON REPLACEMENT ====================
-    // ==================== ICON REPLACEMENT ====================
     function replaceIconsOnce() {
         const svgIcons = getSVGIcons();
 
@@ -3636,7 +3699,9 @@
                 `);
     }
     // ==================== GLOBAL STYLES ====================
-    GM_addStyle(`
+
+    function addGlobalStyles() {
+        GM_addStyle(`
             * { font-family: var(--font-family) !important; }
             .userinfo_stats > tbody {
             display: flex;
@@ -3858,14 +3923,14 @@
 
         `);
 
-    // -------------------- FORUM STYLE --------------------
-    GM_addStyle(`
+        // -------------------- FORUM STYLE --------------------
+        GM_addStyle(`
         .unread, .read, .read_locked, .unread_locked_sticky {
                 background: rgba(200, 200, 200, 0.5) no-repeat center center;
         }
         `);
-    // -------------------- PROFILE ADJUSTMENTS FIX --------------------
-    GM_addStyle(`
+        // -------------------- PROFILE ADJUSTMENTS FIX --------------------
+        GM_addStyle(`
             #menu ul li ul {
             width: max-content;
             padding:8px;
@@ -3907,8 +3972,8 @@
         border-radius: 0 !important;
         }`);
 
-    // -------------------- SETTINGS FIX --------------------
-    GM_addStyle(`
+        // -------------------- SETTINGS FIX --------------------
+        GM_addStyle(`
             .quarter_width_checkbox_container {
                 display: flex;
                 gap: 6px;
@@ -3923,8 +3988,8 @@
                     margin-top: 16px;
             }
         `);
-    // -------------------- ADD TORRENT TAGS STYLE--------------------
-    GM_addStyle(`
+        // -------------------- ADD TORRENT TAGS STYLE--------------------
+        GM_addStyle(`
             td > a:first-of-type {
             font-size: var(--base-font-size-lg);
             font-weight: 600;
@@ -3965,8 +4030,8 @@
         }
         `);
 
-    // -------------------- ADD TRANSITION STYLE--------------------
-    GM_addStyle(`
+        // -------------------- ADD TRANSITION STYLE--------------------
+        GM_addStyle(`
 
             #menu ul#nav_menu > li > a {
         transition: all 0.3s ease, color 0.3s ease;
@@ -4149,9 +4214,9 @@
         `);
 
 
-    // -------------------- ROUND BORDERS ADJUSTMENT --------------------
+        // -------------------- ROUND BORDERS ADJUSTMENT --------------------
 
-    GM_addStyle(`
+        GM_addStyle(`
 
         #nav_menu > li {
         box-shadow: var(--card-box-shadow);
@@ -4212,8 +4277,8 @@
 
 
             `);
-    // -------------------- TORRENTS CSS UPDATES--------------------
-    GM_addStyle(`
+        // -------------------- TORRENTS CSS UPDATES--------------------
+        GM_addStyle(`
 
         img.top10_thumbnail {
             object-fit: scale-down;
@@ -4230,8 +4295,8 @@
 
         `);
 
-    // -------------------- UPDATE FORUM IMAGES--------------------
-    GM_addStyle(`
+        // -------------------- UPDATE FORUM IMAGES--------------------
+        GM_addStyle(`
         .avatar > img{
         width:inherit;
         max-height: none !important;
@@ -4239,9 +4304,9 @@
         }
         `);
 
-    // -------------------- UPDATE FORM INPUTS--------------------
+        // -------------------- UPDATE FORM INPUTS--------------------
 
-    GM_addStyle(`
+        GM_addStyle(`
 
         .alertbar {
            min-width:24px;
@@ -4589,7 +4654,6 @@
         .taglabel { color:var(--text-color-surface) }
         .body { font-size: var(--base-font-size-md) }
         `);
+    }
 
-    // ==================== START SCRIPT ====================
-    init();
 })();
