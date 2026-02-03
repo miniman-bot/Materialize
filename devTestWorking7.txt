@@ -52,7 +52,7 @@
         applyGlobalStyles();
 
         // Initialize page-specific features
-        initPageSpecificFeatures();
+        // initPageSpecificFeatures();
 
 
     }
