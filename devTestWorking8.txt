@@ -11,17 +11,6 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_getResourceText
-// @resource     robotoFont https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap
-// @resource     interFont https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap
-// @resource     manropeFont https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap
-// @resource     momoFont https://fonts.googleapis.com/css2?family=Momo+Signature&display=swap
-// @resource     fredokaFont https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap
-// @resource     oswaldFont https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap
-// @resource     playfairFont https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap
-// @resource     montserratFont https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap
-// @resource     loraFont https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap
-// @resource     poppinsFont https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap
-// @resource     ralewayFont https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap
 // @run-at       document-start
 // ==/UserScript==
 
