@@ -39,6 +39,7 @@
     // ==================== INITIALIZATION ====================
     function init() {
         // Load only the selected font
+        console.log('init does this keep firing?')
         loadSelectedFont();
 
         // Apply saved settings
