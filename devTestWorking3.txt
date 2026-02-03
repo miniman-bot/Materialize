@@ -57,10 +57,10 @@
         // Prevent css flashing need a better fix
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(initChangelog, 100);
+                setTimeout(initChangelog, 1000);
             });
         } else {
-            setTimeout(initChangelog, 100);
+            setTimeout(initChangelog, 1000);
         }
     }
 
