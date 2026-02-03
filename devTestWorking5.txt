@@ -54,16 +54,7 @@
         // Initialize page-specific features
         initPageSpecificFeatures();
 
-        // applyColorPickerFix();
 
-        // Prevent css flashing need a better fix
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(initChangelog, 1000);
-            });
-        } else {
-            setTimeout(initChangelog, 1000);
-        }
     }
 
 
@@ -256,7 +247,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(251, 0, 255, 0.7);
             z-index: 999999;
             display: flex;
             align-items: center;
@@ -3697,10 +3688,7 @@
                         background: rgba(200, 200, 200, 0.5) no-repeat center center;
                     }
                 `);
-    }
-    // ==================== GLOBAL STYLES ====================
 
-    function addGlobalStyles() {
         GM_addStyle(`
             * { font-family: var(--font-family) !important; }
             .userinfo_stats > tbody {
@@ -4655,5 +4643,6 @@
         .body { font-size: var(--base-font-size-md) }
         `);
     }
+    // ==================== GLOBAL STYLES ====================
 
 })();
