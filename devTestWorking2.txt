@@ -67,7 +67,6 @@
 
 
     function initChangelog() {
-        const CHANGELOG_URL = `https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json`;
 
 
         // Check if this is a new version
@@ -79,6 +78,8 @@
         if (!isNewVersion) {
             return; // User has already seen this version
         }
+        const CHANGELOG_URL = `https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json`;
+
         console.log('This should not hit');
         GM_setValue('last_seen_version', CURRENT_VERSION);
 
