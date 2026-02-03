@@ -30,7 +30,7 @@
 
     const url = window.location.href;
     const path = window.location.pathname;
-
+    const CURRENT_VERSION = '1.4.1';
 
     // ==================== CONFIGURATION ====================
     const { fontSizes, themes, fontFamilies } = getGlobalVariables();
