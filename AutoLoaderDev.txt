@@ -12,6 +12,7 @@
 // @grant        GM_getValue
 // @grant        GM_getResourceText
 // @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
 // @resource     robotoFont https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap
 // @resource     interFont https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap
 // @resource     manropeFont https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap
@@ -26,40 +27,73 @@
 // @run-at       document-start
 // @connect      raw.githubusercontent.com
 // ==/UserScript==
-// ==/UserScript==
 
 const SCRIPT_URL = 'https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/dev.txt';
 const CACHE_KEY = 'cached_script';
 const CACHE_VERSION_KEY = 'cached_script_version';
+const LAST_CHECK_KEY = 'last_update_check';
+const CHECK_INTERVAL = 14 * 24 * 60 * 60 * 1000; // 2 weeks in milliseconds
+
+// Pre-load all font resources
+const fontResources = {
+    robotoFont: GM_getResourceText('robotoFont'),
+    interFont: GM_getResourceText('interFont'),
+    manropeFont: GM_getResourceText('manropeFont'),
+    momoFont: GM_getResourceText('momoFont'),
+    fredokaFont: GM_getResourceText('fredokaFont'),
+    oswaldFont: GM_getResourceText('oswaldFont'),
+    playfairFont: GM_getResourceText('playfairFont'),
+    montserratFont: GM_getResourceText('montserratFont'),
+    loraFont: GM_getResourceText('loraFont'),
+    poppinsFont: GM_getResourceText('poppinsFont'),
+    ralewayFont: GM_getResourceText('ralewayFont')
+};
+
+// Function to execute script
+function executeScript(scriptCode) {
+    try {
+        eval(scriptCode);
+    } catch (error) {
+        console.error('Error executing loaded script:', error);
+    }
+}
 
 // Load cached version
 const cachedScript = GM_getValue(CACHE_KEY);
 const cachedVersion = GM_getValue(CACHE_VERSION_KEY, '0.0.0');
+const lastCheck = GM_getValue(LAST_CHECK_KEY, 0);
 
 // Always execute cached script if available
 if (cachedScript) {
-    eval(cachedScript);
+    executeScript(cachedScript);
 }
 
-// Fetch to check for updates
-GM_xmlhttpRequest({
-    method: 'GET',
-    url: SCRIPT_URL,
-    onload: function(response) {
-        // Extract version from the fetched script
-        const versionMatch = response.responseText.match(/const CURRENT_VERSION = ['"](.+?)['"]/);
-        const fetchedVersion = versionMatch ? versionMatch[1] : '0.0.0';
+// Only check for updates if 2 weeks have passed
+const now = Date.now();
+if (now - lastCheck >= CHECK_INTERVAL) {
+    console.log('check')
+    GM_xmlhttpRequest({
+        method: 'GET',
+        url: SCRIPT_URL,
+        onload: function(response) {
+            // Update last check timestamp
+            GM_setValue(LAST_CHECK_KEY, now);
 
-        // Only update cache if version changed
-        if (fetchedVersion !== cachedVersion) {
-            console.log(`Updating script from v${cachedVersion} to v${fetchedVersion}`);
-            GM_setValue(CACHE_KEY, response.responseText);
-            GM_setValue(CACHE_VERSION_KEY, fetchedVersion);
+            // Extract version from the fetched script
+            const versionMatch = response.responseText.match(/const CURRENT_VERSION = ['"](.+?)['"]/);
+            const fetchedVersion = versionMatch ? versionMatch[1] : '0.0.0';
 
-            // Execute new version if we didn't have cache
-            if (!cachedScript) {
-                eval(response.responseText);
+            // Only update cache if version changed
+            if (fetchedVersion !== cachedVersion) {
+                console.log(`Updating script from v${cachedVersion} to v${fetchedVersion}`);
+                GM_setValue(CACHE_KEY, response.responseText);
+                GM_setValue(CACHE_VERSION_KEY, fetchedVersion);
+
+                // Execute new version if we didn't have cache
+                if (!cachedScript) {
+                    executeScript(response.responseText);
+                }
             }
         }
-    }
-});
+    });
+}
