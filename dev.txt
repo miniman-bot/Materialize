@@ -54,7 +54,6 @@
         initPageSpecificFeatures();
 
         applyColorPickerFix();
-        initChangelog();
     }
 
 
@@ -1710,10 +1709,17 @@
     }
 
     function loadPageFeatures() {
+        // Home page
+        if (path.includes('index.php') || path === '/') {
+            console.log('init')
+            initChangelog();
+        }
+              
         // User settings page
         if (path.includes('user.php') && url.includes('action=edit')) {
             addMaterializeEnhancedSettings();
         }
+      
 
         // Upload page
         if (path.includes('upload.php')) {
