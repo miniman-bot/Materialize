@@ -1,7 +1,6 @@
 {
     "1.4.0": {
         "features": [
-            "Auto-update feature - script now automatically checks for updates every 2 weeks",
             "Changelog modal to view what's new in each version"
         ],
         "improvements": [],
