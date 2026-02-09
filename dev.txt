@@ -32,7 +32,7 @@
     const url = window.location.href;
     const path = window.location.pathname;
     const CHANGELOG_DATA = 'change_log_data';
-    const CURRENT_VERSION = '1.4.1'; // Update this when you release
+    const CURRENT_VERSION = '1.3.0'; // Update this when you release
 
     // ==================== CONFIGURATION ====================
     const { fontSizes, themes, fontFamilies } = getGlobalVariables();
@@ -68,7 +68,7 @@
         console.log('CURRENT_VERSION', CURRENT_VERSION)
         const isNewVersion = lastSeenVersion !== CURRENT_VERSION;
 
-        if (!isNewVersion) {
+        if (!isNewVersion && lastSeenVersion !== '0.0.0') {
             return; // User has already seen this version
         }
         console.log('new change')
