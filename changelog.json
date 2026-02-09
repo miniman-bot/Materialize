@@ -3,7 +3,9 @@
         "features": [
             "Changelog modal to view what's new in each version"
         ],
-        "improvements": [],
+        "improvements": [
+            "Add bookmark functionality directly to the top 10 page"
+        ],
         "fixes": []
     },
     "1.3.0": {
