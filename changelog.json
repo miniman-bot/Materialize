@@ -1,5 +1,5 @@
 {
-    "1.4.2": {
+    "1.4.3": {
         "features": [
             "Auto-update feature - script now automatically updates when a new version is pushed",
             "Changelog modal to view what's new in each version"
