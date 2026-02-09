@@ -11,6 +11,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_getResourceText
+// @grant        GM_xmlhttpRequest
 // @resource     robotoFont https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap
 // @resource     interFont https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap
 // @resource     manropeFont https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap
@@ -31,7 +32,7 @@
     const url = window.location.href;
     const path = window.location.pathname;
     const CHANGELOG_DATA = 'change_log_data';
-    const CURRENT_VERSION = '1.4.0'; // Update this when you release
+    const CURRENT_VERSION = '1.4.1'; // Update this when you release
 
     // ==================== CONFIGURATION ====================
     const { fontSizes, themes, fontFamilies } = getGlobalVariables();
@@ -54,7 +55,6 @@
 
         applyColorPickerFix();
         initChangelog();
-
     }
 
 
@@ -1935,6 +1935,7 @@
             if (button) {
                 button.addEventListener('click', () => {
                     const changelogs = GM_getValue(CHANGELOG_DATA);
+                    console.log('changelogs',changelogs)
                     if (changelogs) {
                         // Pass true as 4th parameter to show all versions expanded
                         createChangelogModal(CURRENT_VERSION, changelogs[CURRENT_VERSION], changelogs, true);
