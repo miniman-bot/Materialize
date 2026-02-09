@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Materialize Enhanced
+// @name         Materialize Enhanced Dev
 // @namespace    http://tampermonkey.net/
 // @version      2.0
 // @description  CSS enhancements for materialize default stylesheet - Performance Optimized
@@ -11,6 +11,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_getResourceText
+// @grant        GM_xmlhttpRequest
 // @resource     robotoFont https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap
 // @resource     interFont https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap
 // @resource     manropeFont https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap
@@ -30,7 +31,8 @@
 
     const url = window.location.href;
     const path = window.location.pathname;
-
+    const CHANGELOG_DATA = 'change_log_data';
+    const CURRENT_VERSION = '1.4.3'; // Update this when you release
 
     // ==================== CONFIGURATION ====================
     const { fontSizes, themes, fontFamilies } = getGlobalVariables();
@@ -52,78 +54,127 @@
         initPageSpecificFeatures();
 
         applyColorPickerFix();
-        initChangelog();
-
     }
 
 
 
     function initChangelog() {
-        const CURRENT_VERSION = '1.0.1'; // Update this when you release
-    const CHANGELOG_URL = `https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json?t=${Date.now()}`;
-        const VERSION_KEY = 'last_seen_version';
-        
+        const CHANGELOG_URL = `https://raw.githubusercontent.com/miniman-bot/Materialize/refs/heads/main/changelog.json`;
+
+
         // Check if this is a new version
-        const lastSeenVersion = GM_getValue(VERSION_KEY, '0.0.0');
+        const lastSeenVersion = GM_getValue('last_seen_version', '0.0.0');
+        console.log('lastSeenVersion', lastSeenVersion)
+        console.log('CURRENT_VERSION', CURRENT_VERSION)
         const isNewVersion = lastSeenVersion !== CURRENT_VERSION;
-        
-        if (!isNewVersion) {
+
+        if (!isNewVersion && lastSeenVersion !== '0.0.0') {
             return; // User has already seen this version
         }
-        
+        console.log('new change')
+        GM_setValue('last_seen_version', CURRENT_VERSION);
+
         // Fetch changelog
         GM_xmlhttpRequest({
             method: 'GET',
             url: CHANGELOG_URL,
-            onload: function(response) {
+            onload: function (response) {
                 try {
-                    const changelogs = JSON.parse(response.responseText);
-                    const changelog = changelogs[CURRENT_VERSION];
-                    
+                    const fullChangeLog = JSON.parse(response.responseText);
+                    const changelog = fullChangeLog[CURRENT_VERSION];
+                    GM_setValue(CHANGELOG_DATA, fullChangeLog)
                     if (changelog) {
-                        showChangelog(CURRENT_VERSION, changelog);
-                        GM_setValue(VERSION_KEY, CURRENT_VERSION);
+                        showChangelog(CURRENT_VERSION, changelog, fullChangeLog);
                     }
                 } catch (error) {
                     console.error('Error loading changelog:', error);
                 }
             },
-            onerror: function(error) {
+            onerror: function (error) {
                 console.error('Failed to fetch changelog:', error);
             }
         });
     }
 
-    function showChangelog(version, changelog) {
+    function showChangelog(version, changelog, fullChangeLog) {
         // Wait for page to load
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => createChangelogModal(version, changelog));
         } else {
-            createChangelogModal(version, changelog);
+            createChangelogModal(version, changelog, fullChangeLog, true);
         }
     }
+    function createChangelogModal(version, changelog, fullChangeLog, showAllExpanded = false) {
+        // Helper function to render a single version's changelog
+        function renderVersion(ver, data, isCurrent = false) {
+            const featuresHTML = data.features && data.features.length > 0
+                ? `<h4 style="margin: 10px 0 8px 0; color: var(--text-color-surface); font-size: 14px; font-weight: 600;">✨ New Features</h4>
+               <ul style="margin: 0 0 10px 0; padding-left: 20px; color: var(--text-color-surface); opacity: 0.9;">
+                   ${data.features.map(f => `<li style="margin-bottom: 4px;">${f}</li>`).join('')}
+               </ul>`
+                : '';
 
-    function createChangelogModal(version, changelog) {
-        const featuresHTML = changelog.features && changelog.features.length > 0
-            ? `<h3 style="margin: 15px 0 10px 0; color: #333; font-size: 16px;">✨ New Features</h3>
-           <ul style="margin: 0; padding-left: 20px; color: #666;">
-               ${changelog.features.map(f => `<li style="margin-bottom: 5px;">${f}</li>`).join('')}
-           </ul>`
-            : '';
+            const improvementsHTML = data.improvements && data.improvements.length > 0
+                ? `<h4 style="margin: 10px 0 8px 0; color: var(--text-color-surface); font-size: 14px; font-weight: 600;">🚀 Improvements</h4>
+               <ul style="margin: 0 0 10px 0; padding-left: 20px; color: var(--text-color-surface); opacity: 0.9;">
+                   ${data.improvements.map(i => `<li style="margin-bottom: 4px;">${i}</li>`).join('')}
+               </ul>`
+                : '';
 
-        const improvementsHTML = changelog.improvements && changelog.improvements.length > 0
-            ? `<h3 style="margin: 15px 0 10px 0; color: #333; font-size: 16px;">🚀 Improvements</h3>
-           <ul style="margin: 0; padding-left: 20px; color: #666;">
-               ${changelog.improvements.map(i => `<li style="margin-bottom: 5px;">${i}</li>`).join('')}
-           </ul>`
-            : '';
+            const fixesHTML = data.fixes && data.fixes.length > 0
+                ? `<h4 style="margin: 10px 0 8px 0; color: var(--text-color-surface); font-size: 14px; font-weight: 600;">🐛 Bug Fixes</h4>
+               <ul style="margin: 0 0 10px 0; padding-left: 20px; color: var(--text-color-surface); opacity: 0.9;">
+                   ${data.fixes.map(f => `<li style="margin-bottom: 4px;">${f}</li>`).join('')}
+               </ul>`
+                : '';
 
-        const fixesHTML = changelog.fixes && changelog.fixes.length > 0
-            ? `<h3 style="margin: 15px 0 10px 0; color: #333; font-size: 16px;">🐛 Bug Fixes</h3>
-           <ul style="margin: 0; padding-left: 20px; color: #666;">
-               ${changelog.fixes.map(f => `<li style="margin-bottom: 5px;">${f}</li>`).join('')}
-           </ul>`
-            : '';
+            const versionStyle = isCurrent
+                ? 'background: var(--color-surface-50); padding: 15px; border-radius: var(--border-btn); margin-bottom: 15px; border: 2px solid var(--color-primary-50);'
+                : 'background: var(--color-surface-100); padding: 15px; border-radius: var(--border-btn); margin-bottom: 12px; border: 1px solid var(--color-surface-border);';
+
+            const versionLabel = isCurrent
+                ? `<span style="background: var(--color-primary-50); color: var(--color-primary-text); padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px;">LATEST</span>`
+                : '';
+
+            return `
+            <div style="${versionStyle}">
+                <h3 style="margin: 0 0 12px 0; color: var(--text-color-surface); font-size: 18px; display: flex; align-items: center;">
+                    Version ${ver}${versionLabel}
+                </h3>
+                ${featuresHTML}
+                ${improvementsHTML}
+                ${fixesHTML}
+            </div>
+        `;
+        }
+
+        // Build current version HTML
+        const currentVersionHTML = renderVersion(version, changelog, true);
+
+        // Build previous versions HTML
+        let previousVersionsHTML = '';
+        let sortedVersions = [];
+        if (fullChangeLog && typeof fullChangeLog === 'object') {
+            sortedVersions = Object.keys(fullChangeLog)
+                .filter(v => v !== version)
+                .sort((a, b) => {
+                    // Sort versions in descending order
+                    const aParts = a.split('.').map(Number);
+                    const bParts = b.split('.').map(Number);
+                    for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+                        const aNum = aParts[i] || 0;
+                        const bNum = bParts[i] || 0;
+                        if (aNum !== bNum) return bNum - aNum;
+                    }
+                    return 0;
+                });
+
+            if (sortedVersions.length > 0) {
+                previousVersionsHTML = sortedVersions
+                    .map(ver => renderVersion(ver, fullChangeLog[ver], false))
+                    .join('');
+            }
+        }
 
         const modal = document.createElement('div');
         modal.id = 'changelogModal';
@@ -140,35 +191,70 @@
             align-items: center;
             justify-content: center;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
         ">
             <div style="
-                background: white;
+                background: var(--color-surface-100);
                 padding: 30px;
-                border-radius: 12px;
-                max-width: 500px;
-                max-height: 80vh;
-                overflow-y: auto;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                border-radius: var(--border-btn);
+                max-width: 600px;
+                width: 100%;
+                max-height: 85vh;
+                display: flex;
+                flex-direction: column;
+                box-shadow: var(--card-box-shadow);
+                border: 1px solid var(--color-surface-border);
             ">
-                <h2 style="margin: 0 0 10px 0; color: #333; font-size: 24px;">
-                    🎉 What's New in v${version}
-                </h2>
-                <div style="line-height: 1.6;">
-                    ${featuresHTML}
-                    ${improvementsHTML}
-                    ${fixesHTML}
+                <div style="margin-bottom: 20px;">
+                    <h1 style="margin: 0; color: var(--text-color-surface); font-size: 24px;">
+                        🎉 What's New
+                    </h1>
                 </div>
+
+                <div style="
+                    overflow-y: auto;
+                    flex: 1;
+                    margin-bottom: 20px;
+                    padding-right: 8px;
+                ">
+                    ${currentVersionHTML}
+
+                    ${previousVersionsHTML ? `
+                        <details style="margin-top: 10px;">
+                            <summary style="
+                                cursor: pointer;
+                                padding: 12px;
+                                background: var(--color-surface-50);
+                                border-radius: var(--border-btn);
+                                color: var(--text-color-surface);
+                                font-weight: 600;
+                                user-select: none;
+                                list-style: none;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                            ">
+                                <span id="toggleIcon">${showAllExpanded ? '▼' : '▶'}</span>
+                                <span>Previous Versions (${sortedVersions.length})</span>
+                            </summary>
+                            <div style="margin-top: 15px;">
+                                ${previousVersionsHTML}
+                            </div>
+                        </details>
+                    ` : ''}
+                </div>
+
                 <button id="closeChangelog" style="
-                    margin-top: 20px;
-                    padding: 10px 20px;
-                    background: #007bff;
-                    color: white;
+                    padding: 12px 24px;
+                    background: var(--color-primary-50);
+                    color: var(--color-primary-text);
                     border: none;
-                    border-radius: 6px;
+                    border-radius: var(--border-btn);
                     cursor: pointer;
                     font-size: 14px;
-                    font-weight: 500;
+                    font-weight: 600;
                     width: 100%;
+                    transition: background 0.2s ease;
                 ">
                     Got it!
                 </button>
@@ -178,9 +264,33 @@
 
         document.body.appendChild(modal);
 
-        document.getElementById('closeChangelog').addEventListener('click', () => {
+        const closeButton = document.getElementById('closeChangelog');
+
+        // Add hover effect for close button
+        closeButton.addEventListener('mouseenter', () => {
+            closeButton.style.background = getComputedStyle(document.documentElement)
+                .getPropertyValue('--color-primary-100');
+        });
+
+        closeButton.addEventListener('mouseleave', () => {
+            closeButton.style.background = getComputedStyle(document.documentElement)
+                .getPropertyValue('--color-primary-50');
+        });
+
+        closeButton.addEventListener('click', () => {
             modal.remove();
         });
+
+        // Handle details toggle icon animation
+        const details = modal.querySelector('details');
+        if (details) {
+            details.addEventListener('toggle', () => {
+                const icon = document.getElementById('toggleIcon');
+                if (icon) {
+                    icon.textContent = details.open ? '▼' : '▶';
+                }
+            });
+        }
 
         // Close on backdrop click
         modal.addEventListener('click', (e) => {
@@ -1411,6 +1521,184 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
+
+    /**
+     * Adds bookmarks to the torrent page
+     * @param isTop10 boolean to determine location
+     */
+    function addBookmarks(isTop10) {
+        const bookmarkOutlineSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="var(--color-primary-50)" class="bi bi-bookmark-star" viewBox="0 0 16 16" style="cursor: pointer;">
+<path d="M7.84 4.1a.178.178 0 0 1 .32 0l.634 1.285a.18.18 0 0 0 .134.098l1.42.206c.145.021.204.2.098.303L9.42 6.993a.18.18 0 0 0-.051.158l.242 1.414a.178.178 0 0 1-.258.187l-1.27-.668a.18.18 0 0 0-.165 0l-1.27.668a.178.178 0 0 1-.257-.187l.242-1.414a.18.18 0 0 0-.05-.158l-1.03-1.001a.178.178 0 0 1 .098-.303l1.42-.206a.18.18 0 0 0 .134-.098z"/>
+<path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/>
+</svg>`;
+
+        const bookmarkFilledSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="var(--color-primary-50)" class="bi bi-bookmark-star-fill" viewBox="0 0 16 16" style="cursor: pointer;">
+<path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5M8.16 4.1a.178.178 0 0 0-.32 0l-.634 1.285a.18.18 0 0 1-.134.098l-1.42.206a.178.178 0 0 0-.098.303L6.58 6.993c.042.041.061.1.051.158L6.39 8.565a.178.178 0 0 0 .258.187l1.27-.668a.18.18 0 0 1 .165 0l1.27.668a.178.178 0 0 0 .257-.187L9.368 7.15a.18.18 0 0 1 .05-.158l1.028-1.001a.178.178 0 0 0-.098-.303l-1.42-.206a.18.18 0 0 1-.134-.098z"/>
+</svg>`;
+
+        // First, mark all bookmark images in float:right spans to prevent replacement
+        document.querySelectorAll('.torrent').forEach(row => {
+            const tdPosition = isTop10 ? 2 : 1;
+            const bookMarkTd = row.querySelectorAll('td')[tdPosition];
+            if (!bookMarkTd) return;
+
+            const floatRightSpan = bookMarkTd.querySelector('span[style*="float:right"]');
+            if (!floatRightSpan) return;
+
+            // Mark bookmark images so replaceIconsOnce won't touch them
+            const bookmarkImg = floatRightSpan.querySelector('img[alt="bookmarked"]');
+            if (bookmarkImg) {
+                bookmarkImg.setAttribute('data-bookmark-skip', 'true');
+            }
+        });
+
+        // Custom bookmark wrapper functions
+        function customBookmark(bookmarkSpan, type, id) {
+            if (typeof ajax === 'undefined' || typeof authkey === 'undefined') {
+                console.error('ajax or authkey not available');
+                return;
+            }
+
+            const currentSpan = bookmarkSpan;
+
+            ajax.get("bookmarks.php?action=add&type=" + type + "&auth=" + authkey + "&id=" + id, function () {
+                if (currentSpan && currentSpan.parentNode) {
+                    currentSpan.innerHTML = bookmarkFilledSVG;
+                    currentSpan.title = 'Remove bookmark';
+                    currentSpan.setAttribute('aria-label', 'bookmarked');
+                    currentSpan.setAttribute('data-replaced', 'true');
+                    currentSpan.onclick = function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        customUnbookmark(currentSpan, type, id);
+                        return false;
+                    };
+                    addToast('Bookmark Added!', 'info');
+                }
+            });
+        }
+
+        function customUnbookmark(bookmarkSpan, type, id) {
+            if (typeof ajax === 'undefined' || typeof authkey === 'undefined') {
+                console.error('ajax or authkey not available');
+                return;
+            }
+
+            const currentSpan = bookmarkSpan;
+
+            ajax.get("bookmarks.php?action=remove&type=" + type + "&auth=" + authkey + "&id=" + id, function () {
+                if (currentSpan && currentSpan.parentNode) {
+                    currentSpan.innerHTML = bookmarkOutlineSVG;
+                    currentSpan.title = 'Add bookmark';
+                    currentSpan.setAttribute('aria-label', 'bookmark');
+                    currentSpan.setAttribute('data-replaced', 'true');
+                    currentSpan.onclick = function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        customBookmark(currentSpan, type, id);
+                        return false;
+                    };
+                    addToast('Bookmark Removed!', 'info');
+                }
+            });
+        }
+
+        // Find all torrent rows
+        document.querySelectorAll('tr.torrent:not([data-bookmark-processed])').forEach(row => {
+            const tdPosition = isTop10 ? 2 : 1;
+            const bookMarkTd = row.querySelectorAll('td')[tdPosition];
+            if (!bookMarkTd) return;
+
+            const floatRightSpan = bookMarkTd.querySelector('span[style*="float:right"]');
+            if (!floatRightSpan) return;
+
+            const torrentLink = row.querySelector('span.torrentname a[href*="torrents.php?id="]');
+            if (!torrentLink) return;
+
+            const torrentId = torrentLink.href.match(/id=(\d+)/)?.[1];
+            if (!torrentId) return;
+
+            // Check for existing bookmark (image or span)
+            const bookmarkImg = floatRightSpan.querySelector('img[alt="bookmarked"][data-bookmark-skip]');
+            const bookmarkSpanExisting = floatRightSpan.querySelector('span[aria-label="bookmarked"]');
+
+            if (bookmarkImg) {
+                // Replace the marked image with our custom filled SVG
+                const bookmarkSpan = document.createElement('span');
+                bookmarkSpan.className = '';
+                bookmarkSpan.setAttribute('title', 'Remove bookmark');
+                bookmarkSpan.setAttribute('aria-label', 'bookmarked');
+                bookmarkSpan.setAttribute('data-replaced', 'true');
+                bookmarkSpan.innerHTML = bookmarkFilledSVG;
+                Object.assign(bookmarkSpan.style, {
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '18px',
+                    height: '18px',
+                    background: 'none',
+                    margin: '-2px 0px 0px'
+                });
+
+                bookmarkSpan.onclick = function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    customUnbookmark(bookmarkSpan, 'torrent', torrentId);
+                    return false;
+                };
+
+                bookmarkImg.replaceWith(bookmarkSpan);
+
+                // Move bookmark to the end
+                floatRightSpan.appendChild(bookmarkSpan);
+            } else if (bookmarkSpanExisting) {
+                // Add handler to existing replaced span
+                if (!bookmarkSpanExisting.hasAttribute('data-bookmark-handler')) {
+                    bookmarkSpanExisting.onclick = function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        customUnbookmark(bookmarkSpanExisting, 'torrent', torrentId);
+                        return false;
+                    };
+                    bookmarkSpanExisting.setAttribute('data-bookmark-handler', 'true');
+                    bookmarkSpanExisting.setAttribute('title', 'Remove bookmark');
+                    bookmarkSpanExisting.style.cursor = 'pointer';
+
+                    // Move bookmark to the end if it's not already there
+                    floatRightSpan.appendChild(bookmarkSpanExisting);
+                }
+            } else {
+                // No bookmark exists, create outline bookmark at the end
+                const bookmarkSpan = document.createElement('span');
+                bookmarkSpan.className = '';
+                bookmarkSpan.setAttribute('title', 'Add bookmark');
+                bookmarkSpan.setAttribute('aria-label', 'bookmark');
+                bookmarkSpan.setAttribute('data-replaced', 'true');
+                bookmarkSpan.innerHTML = bookmarkOutlineSVG;
+                Object.assign(bookmarkSpan.style, {
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '18px',
+                    height: '18px',
+                    background: 'none',
+                    margin: '-2px 0px 0px'
+                });
+
+                bookmarkSpan.onclick = function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    customBookmark(bookmarkSpan, 'torrent', torrentId);
+                    return false;
+                };
+
+                // Append to the end of floatRightSpan
+                floatRightSpan.appendChild(bookmarkSpan);
+            }
+
+            row.setAttribute('data-bookmark-processed', 'true');
+        });
+    }
     // ==================== PAGE-SPECIFIC FEATURES ====================
     function initPageSpecificFeatures() {
         if (document.readyState === 'loading') {
@@ -1421,10 +1709,17 @@
     }
 
     function loadPageFeatures() {
+        // Home page
+        if (path.includes('index.php') || path === '/') {
+            console.log('init')
+            initChangelog();
+        }
+              
         // User settings page
         if (path.includes('user.php') && url.includes('action=edit')) {
             addMaterializeEnhancedSettings();
         }
+      
 
         // Upload page
         if (path.includes('upload.php')) {
@@ -1444,6 +1739,11 @@
         // Torrents page
         if (path.includes('torrents.php')) {
             initTorrentsPage();
+        }
+
+        // Top 10 page
+        if (path.includes('top10.php')) {
+            initTop10Page();
         }
 
         // Collages page
@@ -1509,6 +1809,7 @@
 
             tbody.insertBefore(headerRowFont, tbody.firstChild);
 
+            addShowChangeLogButton();
             addThemeSelector();
             addFontFamilySelector();
             addFontSizeSelector();
@@ -1592,7 +1893,7 @@
                 GM_addStyle(fontCSS);
 
                 applyCSSVariables(fontFamilies[selectedFontFamily]);
-                addToast('Font family updated! Refresh for full effect.', 'success');
+                addToast('Font family updated!', 'success');
             });
         }
 
@@ -1623,6 +1924,30 @@
                 applyCSSVariables(fontSizes[selectedSize]);
                 addToast('Font size updated!', 'success');
             });
+        }
+
+        function addShowChangeLogButton() {
+            const changelogButton = document.createElement('tr');
+            changelogButton.innerHTML = `
+        <td class="label"><strong>Change Log:</strong></td>
+        <td>
+            <button type="button" id="showChangelogBtn">Show Change Log</button>
+        </td>
+    `;
+
+            appendToSettings(changelogButton);
+
+            const button = document.getElementById('showChangelogBtn');
+            if (button) {
+                button.addEventListener('click', () => {
+                    const changelogs = GM_getValue(CHANGELOG_DATA);
+                    console.log('changelogs',changelogs)
+                    if (changelogs) {
+                        // Pass true as 4th parameter to show all versions expanded
+                        createChangelogModal(CURRENT_VERSION, changelogs[CURRENT_VERSION], changelogs, true);
+                    }
+                });
+            }
         }
 
         addSettingsToTable();
@@ -2417,179 +2742,15 @@
         }
 
         // ==================== BOOKMARK MANAGEMENT ====================
-        function addBookmarks() {
-            const bookmarkOutlineSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="var(--color-primary-50)" class="bi bi-bookmark-star" viewBox="0 0 16 16" style="cursor: pointer;">
-  <path d="M7.84 4.1a.178.178 0 0 1 .32 0l.634 1.285a.18.18 0 0 0 .134.098l1.42.206c.145.021.204.2.098.303L9.42 6.993a.18.18 0 0 0-.051.158l.242 1.414a.178.178 0 0 1-.258.187l-1.27-.668a.18.18 0 0 0-.165 0l-1.27.668a.178.178 0 0 1-.257-.187l.242-1.414a.18.18 0 0 0-.05-.158l-1.03-1.001a.178.178 0 0 1 .098-.303l1.42-.206a.18.18 0 0 0 .134-.098z"/>
-  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/>
-</svg>`;
 
-            const bookmarkFilledSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="var(--color-primary-50)" class="bi bi-bookmark-star-fill" viewBox="0 0 16 16" style="cursor: pointer;">
-  <path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5M8.16 4.1a.178.178 0 0 0-.32 0l-.634 1.285a.18.18 0 0 1-.134.098l-1.42.206a.178.178 0 0 0-.098.303L6.58 6.993c.042.041.061.1.051.158L6.39 8.565a.178.178 0 0 0 .258.187l1.27-.668a.18.18 0 0 1 .165 0l1.27.668a.178.178 0 0 0 .257-.187L9.368 7.15a.18.18 0 0 1 .05-.158l1.028-1.001a.178.178 0 0 0-.098-.303l-1.42-.206a.18.18 0 0 1-.134-.098z"/>
-</svg>`;
-
-            // First, mark all bookmark images in float:right spans to prevent replacement
-            document.querySelectorAll('tr.torrent').forEach(row => {
-                const secondTd = row.querySelectorAll('td')[1];
-                if (!secondTd) return;
-
-                const floatRightSpan = secondTd.querySelector('span[style*="float:right"]');
-                if (!floatRightSpan) return;
-
-                // Mark bookmark images so replaceIconsOnce won't touch them
-                const bookmarkImg = floatRightSpan.querySelector('img[alt="bookmarked"]');
-                if (bookmarkImg) {
-                    bookmarkImg.setAttribute('data-bookmark-skip', 'true');
-                }
-            });
-
-            // Custom bookmark wrapper functions
-            function customBookmark(bookmarkSpan, type, id) {
-                if (typeof ajax === 'undefined' || typeof authkey === 'undefined') {
-                    console.error('ajax or authkey not available');
-                    return;
-                }
-
-                const currentSpan = bookmarkSpan;
-
-                ajax.get("bookmarks.php?action=add&type=" + type + "&auth=" + authkey + "&id=" + id, function () {
-                    if (currentSpan && currentSpan.parentNode) {
-                        currentSpan.innerHTML = bookmarkFilledSVG;
-                        currentSpan.title = 'Remove bookmark';
-                        currentSpan.setAttribute('aria-label', 'bookmarked');
-                        currentSpan.setAttribute('data-replaced', 'true');
-                        currentSpan.onclick = function (e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            customUnbookmark(currentSpan, type, id);
-                            return false;
-                        };
-                        addToast('Bookmark Added!', 'info');
-                    }
-                });
-            }
-
-            function customUnbookmark(bookmarkSpan, type, id) {
-                if (typeof ajax === 'undefined' || typeof authkey === 'undefined') {
-                    console.error('ajax or authkey not available');
-                    return;
-                }
-
-                const currentSpan = bookmarkSpan;
-
-                ajax.get("bookmarks.php?action=remove&type=" + type + "&auth=" + authkey + "&id=" + id, function () {
-                    if (currentSpan && currentSpan.parentNode) {
-                        currentSpan.innerHTML = bookmarkOutlineSVG;
-                        currentSpan.title = 'Add bookmark';
-                        currentSpan.setAttribute('aria-label', 'bookmark');
-                        currentSpan.setAttribute('data-replaced', 'true');
-                        currentSpan.onclick = function (e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            customBookmark(currentSpan, type, id);
-                            return false;
-                        };
-                        addToast('Bookmark Removed!', 'info');
-                    }
-                });
-            }
-
-            // Find all torrent rows
-            document.querySelectorAll('tr.torrent:not([data-bookmark-processed])').forEach(row => {
-                const secondTd = row.querySelectorAll('td')[1];
-                if (!secondTd) return;
-
-                const floatRightSpan = secondTd.querySelector('span[style*="float:right"]');
-                if (!floatRightSpan) return;
-
-                const torrentLink = row.querySelector('span.torrentname a[href*="torrents.php?id="]');
-                if (!torrentLink) return;
-
-                const torrentId = torrentLink.href.match(/id=(\d+)/)?.[1];
-                if (!torrentId) return;
-
-                // Check for existing bookmark (image or span)
-                const bookmarkImg = floatRightSpan.querySelector('img[alt="bookmarked"][data-bookmark-skip]');
-                const bookmarkSpanExisting = floatRightSpan.querySelector('span[aria-label="bookmarked"]');
-
-                if (bookmarkImg) {
-                    // Replace the marked image with our custom filled SVG
-                    const bookmarkSpan = document.createElement('span');
-                    bookmarkSpan.className = '';
-                    bookmarkSpan.setAttribute('title', 'Remove bookmark');
-                    bookmarkSpan.setAttribute('aria-label', 'bookmarked');
-                    bookmarkSpan.setAttribute('data-replaced', 'true');
-                    bookmarkSpan.innerHTML = bookmarkFilledSVG;
-                    Object.assign(bookmarkSpan.style, {
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '18px',
-                        height: '18px',
-                        background: 'none',
-                        margin: '-2px 0px 0px'
-                    });
-
-                    bookmarkSpan.onclick = function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        customUnbookmark(bookmarkSpan, 'torrent', torrentId);
-                        return false;
-                    };
-
-                    bookmarkImg.replaceWith(bookmarkSpan);
-
-                    // Move bookmark to the end
-                    floatRightSpan.appendChild(bookmarkSpan);
-                } else if (bookmarkSpanExisting) {
-                    // Add handler to existing replaced span
-                    if (!bookmarkSpanExisting.hasAttribute('data-bookmark-handler')) {
-                        bookmarkSpanExisting.onclick = function (e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            customUnbookmark(bookmarkSpanExisting, 'torrent', torrentId);
-                            return false;
-                        };
-                        bookmarkSpanExisting.setAttribute('data-bookmark-handler', 'true');
-                        bookmarkSpanExisting.setAttribute('title', 'Remove bookmark');
-                        bookmarkSpanExisting.style.cursor = 'pointer';
-
-                        // Move bookmark to the end if it's not already there
-                        floatRightSpan.appendChild(bookmarkSpanExisting);
-                    }
-                } else {
-                    // No bookmark exists, create outline bookmark at the end
-                    const bookmarkSpan = document.createElement('span');
-                    bookmarkSpan.className = '';
-                    bookmarkSpan.setAttribute('title', 'Add bookmark');
-                    bookmarkSpan.setAttribute('aria-label', 'bookmark');
-                    bookmarkSpan.setAttribute('data-replaced', 'true');
-                    bookmarkSpan.innerHTML = bookmarkOutlineSVG;
-                    Object.assign(bookmarkSpan.style, {
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '18px',
-                        height: '18px',
-                        background: 'none',
-                        margin: '-2px 0px 0px'
-                    });
-
-                    bookmarkSpan.onclick = function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        customBookmark(bookmarkSpan, 'torrent', torrentId);
-                        return false;
-                    };
-
-                    // Append to the end of floatRightSpan
-                    floatRightSpan.appendChild(bookmarkSpan);
-                }
-
-                row.setAttribute('data-bookmark-processed', 'true');
-            });
-        }
         addSlidesForTorrentDescriptions();
-        addBookmarks();
+        addBookmarks(false);
+    }
+
+    // ==================== TOP 10 PAGE ====================
+    function initTop10Page() {
+        addBookmarks(true);
+
     }
     // ==================== LOGS PAGE ====================
     function initLogsPage() {
@@ -2912,7 +3073,6 @@
         observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
-    // ==================== ICON REPLACEMENT ====================
     // ==================== ICON REPLACEMENT ====================
     function replaceIconsOnce() {
         const svgIcons = getSVGIcons();
