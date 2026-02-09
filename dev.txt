@@ -1893,7 +1893,7 @@
                 GM_addStyle(fontCSS);
 
                 applyCSSVariables(fontFamilies[selectedFontFamily]);
-                addToast('Font family updated! Refresh for full effect.', 'success');
+                addToast('Font family updated!', 'success');
             });
         }
 
