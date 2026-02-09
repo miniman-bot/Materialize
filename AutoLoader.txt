@@ -71,7 +71,6 @@ if (cachedScript) {
 // Only check for updates if 2 weeks have passed
 const now = Date.now();
 if (now - lastCheck >= CHECK_INTERVAL) {
-    console.log('check')
     GM_xmlhttpRequest({
         method: 'GET',
         url: SCRIPT_URL,
